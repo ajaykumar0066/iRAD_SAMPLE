@@ -1,0 +1,191 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="end">
+      <ion-back-button defaultHref="/admintabs/tab1"></ion-back-button>
+    </ion-buttons>
+    
+    <ion-title>Transport</ion-title>
+
+  </ion-toolbar>
+  
+  
+</ion-header>
+
+<ion-content >
+  <ion-card style="background-color: rgb(249, 233, 207); margin-bottom: 35px; ">
+
+
+    <ion-item>
+      <div class="alignme-center" style="width: 100%;">
+        ( RTO / ART / UO / MTO ) Officewise Motor Vehicle Inspection Details
+     </div>
+    </ion-item>
+
+   <ion-grid>
+    <ion-row >
+      <ion-col  size="6" *ngFor="let wingMVI of mvidata1" > 
+        <ion-card *ngIf="wingMVI.mvicounts" style="width: auto; margin-left: 0%; margin-top: 0%; margin-bottom: 0%; margin-right: 0%;">
+          <ion-card-content>
+            <ion-card-title *ngIf="wingMVI.uo_code==null" style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+              {{wingMVI.rto_code | uppercase}} - {{wingMVI.rto_name | uppercase}}
+            </ion-card-title>
+            <ion-card-title *ngIf="wingMVI.uo_code!=null" style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+              {{wingMVI.uo_code | uppercase}} - {{wingMVI.uo_name | uppercase}}
+            </ion-card-title>
+            <ion-row> 
+            <ion-col  style="background-color: #b2defc; text-align: center;">
+              <ion-label style="color: black;">Received</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wingMVI.mvicounts[0].received" style="color: black;">{{wingMVI.mvicounts[0].received}}</ion-label>
+                <ion-label *ngIf="!wingMVI.mvicounts[0].received" style="color: black;">0</ion-label>
+             </p>
+            </ion-col>
+             <ion-col  style="background-color: #ffd7be ; text-align: center;">
+               <ion-label style="color: black;">Pending</ion-label>
+               <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+                <ion-label *ngIf="wingMVI.mvicounts[0].pending"  style="color: black;">{{wingMVI.mvicounts[0].pending}}</ion-label>
+                <ion-label *ngIf="!wingMVI.mvicounts[0].pending"  style="color: black;">0</ion-label>
+              </p>              
+             </ion-col>
+             <ion-col  style="background-color: #befff2; text-align: center;">
+              <ion-label style="color: black;">Inspected</ion-label>
+              <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+               <ion-label *ngIf="wingMVI.mvicounts[0].pending"  style="color: black;">{{wingMVI.mvicounts[0].inspected}}</ion-label>
+               <ion-label *ngIf="!wingMVI.mvicounts[0].pending"  style="color: black;">0</ion-label>
+             </p>              
+            </ion-col>
+            <ion-col  style="background-color: #e7f7ad ; text-align: center; ">
+              <ion-label style="color: black;">Completed</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wingMVI.mvicounts[0].completed" style="color: black;">{{wingMVI.mvicounts[0].completed}}</ion-label>
+                <ion-label *ngIf="!wingMVI.mvicounts[0].completed" style="color: black;">0</ion-label>
+             </p>
+            </ion-col>
+           </ion-row>
+          </ion-card-content>
+          <!-- <ion-icon style="padding-left: 46%; padding-top: 0%;  font-size: 25px;" name="caret-down-sharp" color="danger" (click)="drilDownDivision(wingcircle)"   ></ion-icon> -->
+        </ion-card>
+      </ion-col>
+    </ion-row>
+   </ion-grid>
+  </ion-card>
+
+
+<ion-card style="background-color: rgb(229, 244, 229); margin-bottom: 35px;">
+    <ion-item>
+      <div class="alignme-center" style="width: 100%;">
+        Officerswise Motor Vehicle Inspection Details
+     </div>
+    </ion-item>
+
+    <ion-grid>
+      <ion-row >
+        <ion-col  size="6" *ngFor="let wingMVIOffice of mviOfficewise" > 
+          <ion-card style="width: auto; margin-left: 0%; margin-top: 0%; margin-bottom: 0%; margin-right: 0%;">
+            <ion-card-content>
+              <ion-card-title *ngIf="wingMVIOffice.username!=null" (click)="viewProfile(wingMVIOffice.username)" style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+                {{wingMVIOffice.username | uppercase}}
+              </ion-card-title>
+              <ion-card-title  *ngIf="wingMVIOffice.username==null" style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+                TOTAL 
+              </ion-card-title>
+              <ion-row> 
+              <ion-col *ngIf="wingMVIOffice.username!=null" style="background-color: #b2defc; text-align: center;">
+                <ion-label style="color: black;">Total</ion-label>
+                <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                  <ion-label *ngIf="wingMVIOffice.received" style="color: black;">{{wingMVIOffice.received}}</ion-label>
+                  <ion-label *ngIf="!wingMVIOffice.received" style="color: black;">0</ion-label>
+               </p>
+              </ion-col>
+                <ion-col *ngIf="wingMVIOffice.username==null" style="background-color: #ffd7be ; text-align: center;">
+                 <ion-label style="color: black;">Pending</ion-label>
+                 <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+                  <ion-label *ngIf="wingMVIOffice.pending"  style="color: black;">{{wingMVIOffice.pending}}</ion-label>
+                  <ion-label *ngIf="!wingMVIOffice.pending"  style="color: black;">0</ion-label>
+                </p>              
+               </ion-col> 
+             
+              <ion-col *ngIf="wingMVIOffice.username!=null" style="background-color: #befff2; text-align: center;">
+                <ion-label style="color: black;">Inspected</ion-label>
+                <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+                 <ion-label *ngIf="wingMVIOffice.inspected"  style="color: black;">{{wingMVIOffice.inspected}}</ion-label>
+                 <ion-label *ngIf="!wingMVIOffice.inspected"  style="color: black;">0</ion-label>
+               </p>              
+              </ion-col>
+
+              <ion-col *ngIf="wingMVIOffice.username!=null" style="background-color: #e7f7ad ; text-align: center; ">
+                <ion-label style="color: black;">Completed</ion-label>
+                <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                  <ion-label *ngIf="wingMVIOffice.completed" style="color: black;">{{wingMVIOffice.completed}}</ion-label>
+                  <ion-label *ngIf="!wingMVIOffice.completed" style="color: black;">0</ion-label>
+               </p>
+              </ion-col>
+             </ion-row>
+            </ion-card-content>
+            <!-- <ion-icon style="padding-left: 46%; padding-top: 0%;  font-size: 25px;" name="caret-down-sharp" color="danger" (click)="drilDownDivision(wingcircle)"   ></ion-icon> -->
+          </ion-card>
+        </ion-col>
+      </ion-row>
+     </ion-grid>
+  </ion-card>
+
+
+
+ 
+
+  <ion-card style="background-color: rgb(245, 245, 215); margin-bottom: 35px;">
+    <ion-item>
+      <div class="alignme-center" style="width: 100%;">
+        Police Stationwise Motor Vehicle Inspection Details
+     </div>
+    </ion-item>
+
+   <ion-grid>
+    <ion-row >
+      <ion-col  size="6" *ngFor="let wingdivision of mviPolicewise;" > 
+        <ion-card style="width: auto; margin-left: 0%; margin-top: 0%; margin-bottom: 0%; margin-right: 0%;">
+          <ion-card-content>
+            <ion-card-title style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+              {{wingdivision.name | uppercase}}
+            </ion-card-title>
+            <ion-row> 
+            <ion-col  style="background-color: #b2defc; text-align: center;">
+              <ion-label style="color: black;">Requests</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wingdivision.received" style="color: black;">{{wingdivision.received}}</ion-label>
+                <ion-label *ngIf="!wingdivision.received" style="color: black;">0</ion-label>
+             </p>
+            </ion-col>
+             <ion-col  style="background-color: #ffd7be ; text-align: center;">
+               <ion-label style="color: black;">Pending</ion-label>
+               <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+                <ion-label *ngIf="wingdivision.pending"  style="color: black;">{{wingdivision.pending}}</ion-label>
+                <ion-label *ngIf="!wingdivision.pending"  style="color: black;">0</ion-label>
+              </p>              
+             </ion-col>
+             <ion-col  style="background-color: #befff2; text-align: center;">
+              <ion-label style="color: black;">Inspected</ion-label>
+              <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+               <ion-label *ngIf="wingdivision.pending"  style="color: black;">{{wingdivision.inspected}}</ion-label>
+               <ion-label *ngIf="!wingdivision.pending"  style="color: black;">0</ion-label>
+             </p>              
+            </ion-col>
+            <ion-col  style="background-color: #e7f7ad; text-align: center; ">
+              <ion-label style="color: black;">Completed</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wingdivision.completed" style="color: black;">{{wingdivision.completed}}</ion-label>
+                <ion-label *ngIf="!wingdivision.completed" style="color: black;">0</ion-label>
+             </p>
+
+
+            </ion-col>
+           </ion-row>
+          </ion-card-content>
+          <!-- <ion-icon style="padding-left: 46%; padding-top: 0%;  font-size: 25px;" name="caret-down-sharp" color="danger" (click)="drilDownSubDivision(wingdivision)"   ></ion-icon> -->
+        </ion-card>
+      </ion-col>
+    </ion-row>
+   </ion-grid>
+  </ion-card>
+
+  </ion-content>

@@ -1,0 +1,281 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title style="text-align: center;color: rgb(0, 29, 147);font-weight:bold;text-transform: uppercase;">{{type}} - {{id}}</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content *ngIf="type=='VEHICLE'">
+ 
+<ion-grid>
+<ion-row style="color: rgb(0, 29, 147);font-weight:bold;">
+  <ion-col style="color:#284c85;">
+    {{ "acctab1.acc.veh.vehicle_rgn" | translate: params }}
+    </ion-col>
+    <ion-col>
+      {{servicedata.rc_regn_no}}
+      </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col style="color:#284c85;">
+      {{ "acctab1.acc.veh.owner_name" | translate: params }}
+      </ion-col>
+      <ion-col>
+        {{servicedata.rc_owner_name}}
+        </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col style="color:#284c85;">
+        {{
+          "acctab1.acc.veh.make" | translate: params
+        }}
+        </ion-col>
+        <ion-col>
+          {{servicedata.rc_maker_model}}
+          </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col style="color:#284c85;">
+          {{
+            "acctab1.acc.veh.model" | translate: params
+          }}
+          </ion-col>
+          <ion-col>
+            {{servicedata.rc_maker_desc}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col style="color:#284c85;">
+            {{ "acctab1.acc.veh.insurance" | translate: params }}
+            </ion-col>
+            <ion-col>
+              {{servicedata.rc_insurance_comp}}
+              </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col style="color:#284c85;">
+              {{ "acctab1.acc.veh.insurancepolicy" | translate: params }}
+              </ion-col>
+              <ion-col>
+                {{servicedata.rc_insurance_policy_no}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col style="color:#284c85;">
+                {{ "acctab1.acc.veh.insurancepolicyon" | translate: params }}
+                </ion-col>
+                <ion-col>
+                  {{servicedata.rc_insurance_upto}}
+                  </ion-col>
+              </ion-row>
+        <ion-row>
+          <ion-col style="color:#284c85;">
+            Owner Permanent Address
+            </ion-col>
+            <ion-col>
+              {{servicedata.rc_permanent_address}}
+              </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col style="color:#284c85;">
+              Owner Present Address
+              </ion-col>
+              <ion-col>
+                {{servicedata.rc_present_address}}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col style="color:#284c85;">
+                Fitness / RC Validity
+                </ion-col>
+                <ion-col>
+                  {{servicedata.rc_fit_upto}}
+                  </ion-col>
+              </ion-row>
+              
+              <ion-row>
+                <ion-col style="color:#284c85;">
+                  Color
+                  </ion-col>
+                  <ion-col>
+                    {{servicedata.rc_color}}
+                    </ion-col>
+                </ion-row>
+              <ion-row>
+                <ion-col style="color:#284c85;">
+                  Chasis No
+                  </ion-col>
+                  <ion-col>
+                    {{servicedata.rc_chasi_no}}
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col style="color:#284c85;">
+                    Engine No
+                    </ion-col>
+                    <ion-col>
+                      {{servicedata.rc_eng_no}}
+                      </ion-col>
+                  </ion-row>
+                 
+</ion-grid>
+
+  </ion-card-content>
+  <ion-card-content *ngIf="type=='DRIVER'">
+ 
+    <ion-grid>
+      <ion-row style="color: rgb(0, 29, 147);font-weight:bold;">
+        <ion-col style="color:#284c85;">
+          {{'acctab1.acc.driver.licensenumber' | translate:params}}
+          </ion-col>
+          <ion-col>
+            {{servicedata.dlOldLicnum}}
+            </ion-col>
+        </ion-row>
+      <ion-row>
+        <ion-col style="color:#284c85;">
+          {{'acctab1.acc.driver.Drivername' | translate:params}}
+          </ion-col>
+          <ion-col>
+            {{servicedata.name}}
+            </ion-col>
+        </ion-row>
+
+      
+      <ion-row>
+        <ion-col style="color:#284c85;">
+          {{'acctab1.acc.driver.gender' | translate:params}}
+          </ion-col>
+          <ion-col>
+            {{servicedata.gender}}
+            </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col style="color:#284c85;">
+            {{'acctab1.acc.driver.Moblie_num' | translate:params}}
+            </ion-col>
+            <ion-col>
+              {{servicedata.mobileNo}}
+              </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col style="color:#284c85;">
+            Date of Birth
+              </ion-col>
+              <ion-col>
+                {{servicedata.dateOfBirth}}
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col style="color:#284c85;">
+                {{'acctab1.acc.driver.blood' | translate:params}}
+                </ion-col>
+                <ion-col>
+                  {{servicedata.bloodGroup}}
+                  </ion-col>
+              </ion-row>
+
+        
+      <ion-row>
+        <ion-col style="color:#284c85;">
+          Permenant Address in License 
+          </ion-col>
+          <ion-col>
+            {{servicedata.permAdd1}},{{servicedata.permAdd2}},{{servicedata.permAdd3}},{{servicedata.permPin}}
+            </ion-col>
+        </ion-row>
+        
+      <ion-row>
+        <ion-col style="color:#284c85;">
+          Current Address in License 
+                  </ion-col>
+          <ion-col>
+            {{servicedata.tempAdd1}},{{servicedata.tempAdd2}},{{servicedata.tempAdd3}},{{servicedata.tempPin}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col style="color:#284c85;">
+            Registration Authority
+            </ion-col>
+            <ion-col>
+              {{servicedata.registration_Authority}}
+              </ion-col>
+          </ion-row>
+        <ion-row>
+          <ion-col style="color:#284c85;">
+            {{'acctab1.acc.driver.class' | translate:params}}
+            </ion-col>
+            <ion-col>
+              {{servicedata.vehicleClass}}
+              </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col style="color:#284c85;">
+              {{'acctab1.acc.driver.transport_dl_validity' | translate:params}}
+              </ion-col>
+              <ion-col>
+                {{servicedata.dlTransValdTill}}
+                </ion-col>
+            </ion-row>
+
+           
+
+              <ion-row>
+                <ion-col style="color:#284c85;">
+                  {{'acctab1.acc.driver.non_transport_dl_validity' | translate:params}}            </ion-col>
+                  <ion-col>
+                    {{servicedata.dlNonTransValdTill}}
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col style="color:#284c85;">
+                    {{'acctab1.acc.driver.hill_dl_Validity' | translate:params}}
+                    </ion-col>
+                    <ion-col>
+                      {{servicedata.dlHillValdTill}}
+                      </ion-col>
+                  </ion-row>
+
+                  <ion-row>
+                    <ion-col style="color:#284c85;">
+                      {{'acctab1.acc.driver.hazardous_dl_Validity' | translate:params}}
+                      </ion-col>
+                      <ion-col>
+                        {{servicedata.dlHazrdValdTill}}
+                        </ion-col>
+                    </ion-row>
+              
+        
+
+    </ion-grid>
+   
+  </ion-card-content>
+</ion-card>
+
+<ion-footer translucent="true" class="tab1-footer"  *ngIf="type=='VEHICLE'">
+  <ion-grid>
+    <ion-row>
+   <ion-col>
+       <ion-button  color="danger" expand="block" (click)="matching('vehicle','1')">Mismatch</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button color="success" expand="block" (click)="matching('vehicle','0')">Match</ion-button>
+  </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>
+<ion-footer translucent="true" class="tab1-footer" *ngIf="type=='DRIVER'">
+  <ion-grid>
+    <ion-row>
+   <ion-col>
+       <ion-button  color="danger" expand="block" (click)="matching('driver','1')">Mismatch</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button color="success" expand="block" (click)="matching('driver','0')">Match</ion-button>
+  </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>

@@ -1,0 +1,101 @@
+.list .item.item-accordion {
+    line-height: 38px;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition: 0.09s all linear;
+  }
+  .list .item.item-accordion.ng-hide {
+    line-height: 0px;
+  }
+  .list .item.item-accordion.ng-hide-add,
+  .list .item.item-accordion.ng-hide-remove {
+    display: block !important;
+  }
+
+  .hide {
+    display: none;
+  }
+
+
+
+  .row {  
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+  }
+  
+  /* Create two unequal columns that sits next to each other */
+  /* Sidebar/left column */
+  .side {
+    -ms-flex: 30%; /* IE10 */
+    flex: 30%;
+    width: 30%;
+    min-width: 300px;
+    background-color:rgb(219, 237, 243);
+    height: 87.8vh;
+  }
+
+  .main {   
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    background-color:rgb(219, 237, 243);
+    height: 87.8vh;
+  }
+
+  ion-card {
+    max-height: 87vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ion-list {
+    overflow: hidden;
+    overflow-y: auto;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  }
+ 
+
+  table {
+    width: 500px;
+  }
+  
+  th,td {
+    border-bottom: 3px solid #F0F0F0;
+    padding: 10px;
+  }
+  
+  .scroll {
+    width: 400px; 
+    // height: 435px; 
+    overflow: auto; 
+    margin-left: 10px; 
+    margin-right: 10px;
+  }
+  
+  .col-id {
+    left: 0;
+    position: sticky;
+    border-right: 3px solid #F0F0F0;
+    background-color: #d5f5e3;
+    width: 100px;
+  }
+  
+  .fixed-header {  
+    top: 0;
+    position: sticky;
+    color: #FFF;
+    background-color: #4FC3A1;
+    width: 25px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #ebebeb;
+  }
+  
+  tr:nth-child(odd) {
+    background-color: #FFF;
+  }
+  

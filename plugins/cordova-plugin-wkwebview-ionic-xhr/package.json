@@ -1,0 +1,31 @@
+{
+  "name": "cordova-plugin-wkwebview-ionic-xhr",
+  "version": "2.1.1",
+  "description": "Cordova WKWebView Ionic XHR Plugin",
+  "cordova": {
+    "id": "cordova-plugin-wkwebview-ionic-xhr",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sortdinc/cordova-plugin-wkwebview-ionic-xhr"
+  },
+  "keywords": [
+    "cordova",
+    "wkwebview",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "ionic"
+  ],
+  "scripts": {
+    "test": "npm run jshint",
+    "jshint": "node node_modules/jshint/bin/jshint www && node node_modules/jshint/bin/jshint src && node node_modules/jshint/bin/jshint tests"
+  },
+  "author": "oraclejet",
+  "license": "UPL-1.0",
+  "devDependencies": {
+    "jshint": "^2.6.0"
+  }
+}

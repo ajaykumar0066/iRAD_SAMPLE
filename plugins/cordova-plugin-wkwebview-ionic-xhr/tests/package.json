@@ -1,0 +1,19 @@
+{
+  "name": "cordova-plugin-wkwebview-ionic-xhr-tests",
+  "version": "2.1.1",
+  "description": "Cordova WKWebView Ionic XHR Plugin Tests",
+  "cordova": {
+    "id": "cordova-plugin-wkwebview-ionic-xhr-tests",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "keywords": [
+    "cordova",
+    "wkwebview",
+    "ecosystem:cordova",
+    "cordova-ios"
+  ],
+  "author": "",
+  "license": "UPL-1.0"
+}

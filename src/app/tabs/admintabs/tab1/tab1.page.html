@@ -1,0 +1,1211 @@
+
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>
+        Dashboard - {{dashboard.title }}  {{dashboard.subtitle }}
+      </ion-title>
+
+      <ion-icon
+        slot="end"
+        *ngIf="dev"
+        name="filter-outline"
+        size="large"
+        (click)="openFilter()"
+      ></ion-icon>
+
+
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Header without a border -->
+  <ion-header class="ion-no-border">
+
+    <ion-segment color="primary" [(ngModel)]="db_flag" scrollable > <!--*ngIf="(user.dept==1 && +user.role<=2) || user.dept==10" -->
+      <!-- <ion-segment-button (click)="showDB('GENERAL')" value="GENERAL">
+        <ion-label color="primary">GENERAL</ion-label>
+      </ion-segment-button> -->
+      <ion-segment-button (click)="showDB('GENERAL')" value="GENERAL">
+        <ion-label color="primary">POLICE</ion-label>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="(user.dept==1 && +user.role<=2)|| user.dept==2 || user.dept==10" (click)="showDB('TRANSPORT')" value="TRANSPORT">
+        <ion-label color="primary">TRANSPORT</ion-label>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="(user.dept==1 && +user.role<=2)|| user.dept==3 || user.dept==10" (click)="showDB('HIGHWAYS')" value="HIGHWAYS">
+        <ion-label color="primary">HIGHWAYS</ion-label>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="(user.dept==1 && +user.role<=2)|| user.dept==4 || user.dept==10" (click)="showDB('HEALTH')" value="HEALTH">
+        <ion-label color="primary">HEALTH</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    </ion-header>
+
+    <!--   <ion-toolbar>
+ <div class="alignme-center" style="width: 100%;"> {{dashboard.title  |titlecase}} </div>
+    
+     <ion-icon color='danger' slot="end" name="filter-outline" size='large' (click)="openFilter()" ></ion-icon> 
+  </ion-toolbar> -->
+  <ng-container *ngIf="db_flag=='GENERAL'" >
+    <ion-header>
+    <ion-segment color="success" [(ngModel)]="tl_flag" scrollable>
+      <ion-segment-button (click)="timeLine('1D')" value="1D">
+        <ion-label color="primary">1D</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button (click)="timeLine('1W')" value="1W">
+        <ion-label color="primary">1W</ion-label>
+      </ion-segment-button>
+      <ion-segment-button (click)="timeLine('1M')" value="1M">
+        <ion-label color="primary">1M</ion-label>
+      </ion-segment-button>
+      <ion-segment-button (click)="timeLine('3M')" value="3M">
+        <ion-label color="primary">3M</ion-label>
+      </ion-segment-button>
+      <ion-segment-button (click)="timeLine('6M')" value="6M">
+        <ion-label color="primary">6M</ion-label>
+      </ion-segment-button>
+      <ion-segment-button (click)="timeLine('1Y')" value="1Y">
+        <ion-label color="primary">1Y</ion-label>
+      </ion-segment-button>
+      <ion-segment-button (click)="timeLine('ALL')" value="ALL">
+        <ion-label color="primary">ALL</ion-label>
+      </ion-segment-button>
+      <ion-segment-button  value="CUSTOM">
+        <ion-label color="primary">CUSTOM</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  <ion-segment *ngIf="tl_flag=='CUSTOM'" >
+   
+      <ion-item>
+        <ion-label>From </ion-label>
+        <ion-datetime min="2021-01-01" [(ngModel)]='fromdate' placeholder="From Date"  displayFormat="D MMM YYYY" ></ion-datetime>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>To </ion-label>
+        <ion-datetime [disabled]="fromdate==null" [min]="fromdate" [max]='today'  [(ngModel)]='todate' placeholder="To Date"  displayFormat="D MMM YYYY"></ion-datetime>
+      </ion-item>
+
+      <ion-item>
+        <ion-button (click)="timeLine('CUSTOM')" > OK </ion-button>
+      </ion-item>
+   
+   
+  </ion-segment>
+  </ion-header>
+
+  <ion-content >
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <ion-card>
+      <ion-item>
+        <!-- <ion-segment *ngIf="true" style="width: 120px" [(value)]="cf_flag">
+          <ion-segment-button (click)="chartChange('C1')" value="C1">
+            <ion-icon name="pulse-outline"></ion-icon>
+          </ion-segment-button>
+
+           <ion-segment-button (click)="chartChange('C2')" value="C2">
+            <ion-icon name="options-outline"></ion-icon>
+          </ion-segment-button>  -->
+
+          <ion-segment-button (click)="clickLineChart('C1')" value="C1" style="width: auto; color: black;">
+            <ion-icon name="pulse-outline"></ion-icon>
+          </ion-segment-button>
+          <ion-segment-button (click)="chartChange('C2')" value="C2" style="width: auto; color: black;">
+            <ion-icon name="bar-chart"></ion-icon>
+          </ion-segment-button>
+
+          <!-- <ion-segment-button (click)="chartChange('C3')" value="C3">
+            <ion-icon name="bar-chart"></ion-icon>
+          </ion-segment-button> -->
+
+        <!-- </ion-segment> -->
+        <div class="alignme-center" style="width: 100%">
+          {{dashboard.title}} - {{dashboard.subtitle}}
+        </div>
+      </ion-item>
+      <ion-card-content *ngIf="cf_flag=='C1'" style="background-color: #e9e6c2">
+        <canvas style="max-height: 70vh" #lineCanvas></canvas>
+      </ion-card-content>
+
+      <ion-card-content *ngIf="cf_flag=='C2'" style="background-color: #e9e6c2">
+        <canvas style="max-height: 70vh" #barChart></canvas>
+      </ion-card-content>
+     
+
+      <!-- <ion-card-content *ngIf="cf_flag=='C1'" style="background-color: #e9e6c2">
+        <canvas style="max-height: 70vh" #lineCanvas></canvas>
+      </ion-card-content>
+
+      <ion-card-content *ngIf="cf_flag=='C2'" style="background-color: #e9e6c2">
+        <canvas style="max-height: 70vh" #lineCanvas2></canvas>
+      </ion-card-content> -->
+
+      <!-- <div class="col col-50">
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col class="font-size: 4em;">
+              Total : <ng2-odometer [number]="total" [config]="config"></ng2-odometer>
+              
+            </ion-col>
+
+            <ion-col>
+              Fatal:<ng2-odometer [number]="fatal" [config]="config"></ng2-odometer>
+              
+            </ion-col>
+
+            <ion-col>
+               Grevious:<ng2-odometer [number]="grevious" [config]="config"></ng2-odometer>
+              
+
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col> Injury (Hospitalized):<ng2-odometer [number]="simple_injury_hosp" [config]="config">
+              </ng2-odometer>
+            </ion-col>
+            <ion-col> Injury (Non-Hospitalized):<ng2-odometer [number]="simple_injury_nonhosp" [config]="config">
+              </ng2-odometer>
+            </ion-col>
+            <ion-col> No Injury:<ng2-odometer [number]="no_injury" [config]="config"></ng2-odometer>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </div> -->
+    </ion-card>
+    <!-- [config]="config" -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" class="grid" style="color: #666666">
+          <ion-grid color="medium">
+            <ion-row>
+              <ion-col>
+                Total No. of Accidents -
+                <ng2-odometer
+                  [number]="dashboard.totaccident"
+                  
+                >
+                </ng2-odometer>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="" class="grid fatalbg" >
+                <!-- (click)="linechartaddDataset('fatal')" -->
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes" 
+                  alt=""
+                />
+                Fatal
+                <p style="font-weight: 500; font-size: 14px">
+                  &nbsp; ({{(dashboard.fatal/dashboard.totaccident)*100 | number
+                  : '1.1-1' }}%)
+                </p>
+                <ng2-odometer
+                  [number]="dashboard.fatal"
+            
+                ></ng2-odometer>
+              </ion-col>
+              <ion-col class="grid grevbg"  >
+                <!-- (click)="linechartaddDataset('grev')" -->
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                Grievous
+                <p style="font-weight: 500; font-size: 14px">
+                  &nbsp; ({{(dashboard.grevious/dashboard.totaccident)*100 |
+                  number : '1.1-1' }}%)
+                </p>
+                <ng2-odometer
+                  [number]="dashboard.grevious"
+                 
+                ></ng2-odometer>
+              </ion-col>
+              <ion-col class="grid simphbg" >
+                <!-- (click)="linechartaddDataset('sih')" -->
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                Simple Injury
+                <p style="font-weight: 500; font-size: 14px">
+                  ({{(dashboard.simple_injury_h/dashboard.totaccident)*100 |
+                  number : '1.1-1' }}%) (Hospitalized)
+                </p>
+                <ng2-odometer
+                  [number]="dashboard.simple_injury_h"
+                  
+                ></ng2-odometer>
+              </ion-col>
+              <ion-col class="grid simpnhbg" >
+                <!-- (click)="linechartaddDataset('sinh')" -->
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                Simple Injury
+                <p style="font-weight: 500; font-size: 14px">
+                  ({{(dashboard.simple_injury_nh/dashboard.totaccident)*100 |
+                  number : '1.1-1' }}%) (Non Hospitalized)
+                </p>
+                <ng2-odometer
+                  [number]="dashboard.simple_injury_nh"
+                  
+                ></ng2-odometer>
+              </ion-col>
+              <ion-col class="grid vehbg" >
+                <!-- (click)="linechartaddDataset('ni')" -->
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                No Injury
+                <p style="font-weight: 500; font-size: 14px">
+                  &nbsp; ({{(dashboard.no_injury/dashboard.totaccident)*100 |
+                  number : '1.1-1' }}%)
+                </p>
+                <ng2-odometer
+                  [number]="dashboard.no_injury"
+                  
+                ></ng2-odometer>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col size="12" class="grid" style="color: #666666">
+          <ion-grid color="medium">
+            <ion-row>
+              <ion-col>
+                Total No. of Persons Involved -
+                <ng2-odometer
+                  [number]="dashboard.totalperson"
+                 
+                >
+                </ng2-odometer>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col class="grid deadbg">
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                Dead
+                <p style="font-weight: bold; font-size: 34px">
+                  <ng2-odometer
+                    [number]="dashboard.dead"
+                   
+                  ></ng2-odometer>
+                </p>
+              </ion-col>
+              <ion-col class="grid injbg">
+                <img
+                  src="assets/images/circle.svg"
+                  class="card-img-absolutes"
+                  alt=""
+                />
+                Injured
+                <p style="font-weight: bold; font-size: 34px">
+                  <ng2-odometer
+                    [number]="dashboard.injured"
+                   
+                  ></ng2-odometer>
+                </p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- <ion-card *ngIf='this.totaccident!=0' class="welcome-card">
+    <ion-card-header>
+      <ion-card-subtitle *ngIf="data">Accident</ion-card-subtitle>
+      <ion-card-title *ngIf="data">Total Accidents</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <canvas #barChart></canvas>
+    </ion-card-content>
+
+    <ion-grid *ngIf="data"> -->
+
+    <!--  <ion-row >
+          <ion-col class="ion-align-self-end">
+            <h6>Accidents</h6>
+          </ion-col>
+          <ion-col class="ion-align-self-start">
+            <h6>S1</h6>
+          </ion-col>
+          <ion-col class="ion-align-self-start">
+            <h6>S2</h6>
+          </ion-col>
+          <ion-col class="ion-align-self-start">
+            <h6>S3</h6>
+          </ion-col>
+          <ion-col class="ion-align-self-start">
+            <h6>S4</h6>
+          </ion-col>
+          <ion-col class="ion-align-self-start">
+            <h6>S5</h6>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let d of data.datasets ; let i = index" align-items-end>
+          <ion-col class="ion-align-self-start">
+            <div>
+             count
+            </div>
+          </ion-col>
+          <ion-col class="ion-align-self-center">
+            <div>
+              {{data.datasets[i].data[0]}}
+            </div>
+          </ion-col>
+          <ion-col class="ion-align-self-end">
+            <div>
+              {{data.datasets[i].data[1]}}
+            </div>
+          </ion-col>
+          <ion-col class="ion-align-self-end">
+            <div>
+              {{data.datasets[i].data[2]}}
+            </div>
+          </ion-col>
+          <ion-col class="ion-align-self-end">
+            <div>
+              {{data.datasets[i].data[3]}}
+            </div>
+          </ion-col>
+          <ion-col class="ion-align-self-end">
+            <div>
+              {{data.datasets[i].data[4]}}
+            </div>
+          </ion-col>
+          
+        </ion-row>
+
+        <ion-row>
+          <ion-col><hr>  <h6>
+            <table width=100%>
+              <tr><td><h6>Fatal</h6> </td><td>  {{data.datasets[0].data[0]}}</td></tr>
+              <tr><td><h6>Grievous</h6></td><td> {{data.datasets[0].data[1]}}</td></tr>
+              <tr><td><h6>Simple (Injury Hospitalized)</h6></td><td> {{data.datasets[0].data[2]}}</td></tr>
+              <tr><td><h6>Simple (Injury Hospitalized)</h6></td><td> {{data.datasets[0].data[3]}}</td></tr>
+              <tr><td><h6>Vehicle Damage Onely</h6></td><td> {{data.datasets[0].data[4]}}</td></tr>
+            </table> </h6>
+          </ion-col>
+        </ion-row>-->
+
+    <!-- </ion-grid>
+
+  </ion-card> -->
+    <ion-grid>
+      <ion-row>
+        <ion-col *ngIf="dev">
+          <ion-button expand="block" color="danger" (click)="funCounts()"
+            >Counts</ion-button
+          >
+        </ion-col>
+        <!-- <ion-col>
+          <ion-button expand="block" color="danger" (click)="drilDown()"
+            >Summary</ion-button
+          >
+        </ion-col> -->
+        <ion-col>
+          <ion-button expand="block" color="warning" (click)="loginDetails()"
+            >Login Count</ion-button
+          >
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>
+</ng-container>
+
+
+<!-- new dev-->
+
+<ng-container *ngIf="db_flag=='POLICE'" >
+  <ion-content >
+    <ion-refresher slot="fixed" (ionRefresh)="doRefreshDB($event)">
+      <ion-refresher-content pullingIcon="arrow-down-outline"  pullingText="Pull to refresh"  refreshingSpinner="circles"   refreshingText="Refreshing..." >   </ion-refresher-content>
+    </ion-refresher>
+POLICE
+    </ion-content>
+</ng-container>
+
+<ng-container *ngIf="db_flag=='TRANSPORT'" >
+  <ion-content >
+    <ion-refresher slot="fixed" (ionRefresh)="doRefreshDB($event)">
+      <ion-refresher-content pullingIcon="arrow-down-outline"  pullingText="Pull to refresh"  refreshingSpinner="circles"   refreshingText="Refreshing..." >   </ion-refresher-content>
+    </ion-refresher>
+    
+    <ion-card >
+          
+      <ion-item style="float: right; background-color: transparent; height: 48px; margin-top: 0%; padding-top: 0%;">
+        
+        <ion-segment *ngIf="true" style="width: auto;" >
+     
+          <ion-segment-button (click)="BarTransport()"  style="width: auto;">
+            <ion-icon name="bar-chart"></ion-icon>
+          </ion-segment-button>
+          <ion-segment-button (click)="PieTransport()"  style="width: auto;">
+            <ion-icon name="pie-chart"></ion-icon>
+          </ion-segment-button>
+
+        </ion-segment>
+       
+      </ion-item>
+      <div class="alignme-center" style="width: 100%; height: 48px; padding-top:15px;">
+       Motor Vehicle Inspection
+      </div>
+     
+     
+  
+
+  <ion-card-content *ngIf="cf_flag=='C1'" style="background-color: #e9e6c2">
+    <canvas style="max-height: 70vh" #lineCanvas></canvas>
+  </ion-card-content>
+
+  <ion-card-content *ngIf="cf_flag=='C2'" style="background-color: #e9e6c2">
+    <canvas style="max-height: 70vh" #barChart></canvas>
+  </ion-card-content>
+</ion-card>
+
+
+
+
+<ion-card style="background-color:rgb(215, 253, 215);">
+  <ion-item>
+     <div class="alignme-center" style="width: 100%">
+      Motor Vehicle Inspection Requests
+    </div>
+  </ion-item>
+
+<ion-grid > 
+  <ion-row style="margin-top: 0%;"> 
+    <ion-col size="12"  style="color: #666666; text-align: center; padding-top: 2px; font-weight: 500;"> 
+      <ion-grid color="medium"> 
+        <!-- <ion-row> 
+           
+          <ion-col style="font-size: 18px;"> Inspection Requests </ion-col> 
+        </ion-row> --> 
+        <ion-row> 
+          <ion-col class="gridcol simphbg2"> 
+            <img 
+              src="assets/images/circle.svg" 
+              class="card-img-absolutes" 
+              alt="" 
+            /> 
+            Received 
+            <p style="font-weight: bold; font-size: 22px; text-align: center;"> 
+              <ng2-odometer [number]="transdata.received"></ng2-odometer> 
+            </p> 
+          </ion-col> 
+          <ion-col class="gridcol grevbg"> 
+            <img 
+              src="assets/images/circle.svg" 
+              class="card-img-absolutes" 
+              alt="" 
+            /> 
+            Pending 
+            <p style="font-weight: bold; font-size: 22px; text-align: center;"> 
+              <ng2-odometer [number]="transdata.pending"></ng2-odometer> 
+            </p> 
+          </ion-col> 
+          <ion-col class="gridcol simphbg1"> 
+            <img 
+              src="assets/images/circle.svg" 
+              class="card-img-absolutes" 
+              alt="" 
+            /> 
+            Inspected 
+            <p  style="font-weight: bold; font-size: 22px; text-align: center;"> 
+              <ng2-odometer [number]="transdata.inspected"></ng2-odometer> 
+            </p> 
+          </ion-col> 
+          <ion-col size="" class="gridcol fatalbg1"> 
+            <img 
+              src="assets/images/circle.svg" 
+              class="card-img-absolutes" 
+              alt="" 
+            /> 
+            AIR Reports Submitted 
+            <p  style="font-weight: bold; font-size: 22px; text-align: center;"> 
+              <ng2-odometer [number]="transdata.completed"></ng2-odometer> 
+            </p> 
+          </ion-col> 
+          
+        </ion-row> 
+      </ion-grid> 
+    </ion-col> 
+  </ion-row> 
+</ion-grid>
+</ion-card>
+
+
+
+<ion-card style="background-color: rgb(224, 245, 224); " *ngIf="transportdatatable">
+
+<ion-item>
+  <div class="alignme-center" style="width: 100%;">
+    RTO Wise Details
+ </div>
+</ion-item>
+<ion-grid>
+
+<ion-row >
+  <ion-col size="6" *ngFor="let wing of transportdatatable;" (click)="drilldownTransport(wing)">
+   
+    <ion-card  style="width: auto; margin-left: 0%; margin-top: 0%; margin-bottom: 0%; margin-right: 0%;">
+      <ion-card-content>
+        <ion-card-title style="text-align: center; font-size: 16px; padding-top: 0%;">
+          {{wing.rto_code | uppercase}} - {{wing.rto_name | uppercase}}
+        </ion-card-title>
+       <ion-row> 
+
+        <ion-col  style="background-color: #b2defc; text-align: center;">
+          <ion-label style="color: black;">Received</ion-label>
+          <p style="font-weight: bold; font-size: 18px; text-align: left;  text-align: center; color: black;">
+            <ion-label style="color: black;">{{wing.mvicounts[0].received}}</ion-label>
+         </p>
+        </ion-col>
+
+        <!-- <ng2-odometer
+             [number]="wing.received"
+           ></ng2-odometer> -->
+         
+         <ion-col  style="background-color: #ffd7be; text-align: center;">
+           <ion-label style="color: black;">Pending</ion-label>
+           <p style="font-weight: bold; font-size: 18px; text-align: left;  text-align: center; color: black;">
+            <ion-label style="color: black;">{{wing.mvicounts[0].pending}}</ion-label>
+            
+          </p>              
+         </ion-col>
+         <!-- <ng2-odometer
+              [number]="wing.pending"
+            ></ng2-odometer> -->
+        
+        
+        <ion-col  style="background-color: #befff2; text-align: center;">
+          <ion-label style="color: black;">Inspected</ion-label>
+          <p style="font-weight: bold; font-size: 18px; text-align: left;  text-align: center; color: black;">
+            <ion-label style="color: black;">{{wing.mvicounts[0].inspected}}</ion-label>
+           
+         </p>
+        </ion-col>
+        <!-- <ng2-odometer
+             [number]="wing.inspected"
+           ></ng2-odometer> -->
+
+        <ion-col  style="background-color: #e7f7ad; text-align: center; height: 60px;">
+          <ion-label style="color: black;">Completed</ion-label>
+          <p style="font-weight: bold; font-size: 18px; text-align: left;  text-align: center; color: black;">
+            <ion-label style="color: black;">{{wing.mvicounts[0].completed}}</ion-label>
+           
+         </p>
+        </ion-col>
+        <!-- <ng2-odometer
+             [number]="wing.completed"
+           ></ng2-odometer> -->
+       </ion-row>
+      </ion-card-content>
+    </ion-card>
+  
+  </ion-col>
+
+</ion-row>
+
+</ion-grid>
+
+</ion-card>
+    
+    </ion-content>
+</ng-container>
+
+<ng-container *ngIf="db_flag=='HIGHWAYS'" >
+  <ion-content >
+    <ion-refresher slot="fixed" (ionRefresh)="doRefreshDB($event)">
+      <ion-refresher-content pullingIcon="arrow-down-outline"  pullingText="Pull to refresh"  refreshingSpinner="circles"   refreshingText="Refreshing..." >   </ion-refresher-content>
+    </ion-refresher>
+    <ion-card> 
+           
+      <ion-item style="float: right; background-color: transparent; height: 48px; margin-top: 0%; padding-top: 0%;"> 
+         
+        <ion-segment *ngIf="true" style="width: auto;" > 
+      
+          <ion-segment-button (click)="barCharthighways()"  style="width: auto;"> 
+            <ion-icon name="bar-chart"></ion-icon> 
+          </ion-segment-button> 
+          <ion-segment-button (click)="pieCharthighways()"  style="width: auto;"> 
+            <ion-icon name="pie-chart"></ion-icon> 
+          </ion-segment-button> 
+ 
+        </ion-segment> 
+        
+      </ion-item> 
+      <div class="alignme-center" style="width: 100%; height: 48px; padding-top:15px;"> 
+        
+      </div> 
+   
+ 
+  <ion-card-content *ngIf="cf_flag=='C1'" style="background-color: #e9e6c2"> 
+    <canvas style="max-height: 70vh" #lineCanvas></canvas> 
+  </ion-card-content> 
+ 
+  <ion-card-content *ngIf="cf_flag=='C2'" style="background-color: #e9e6c2"> 
+    <canvas style="max-height: 70vh" #barChart></canvas> 
+  </ion-card-content> 
+</ion-card>
+    <ion-card style="background-color: transparent;"> 
+      <ion-col >
+        <ion-grid color="medium" >
+          
+
+          <ion-row>
+            <ion-col size="" class="gridcol request">
+              <img
+                src="assets/images/circle.svg"
+                class="card-img-absolutes"
+                alt=""
+              />
+              Request
+              <p  style="font-weight: bold; font-size: 22px; text-align: center;">
+                <ng2-odometer [number]="hwdata.total"></ng2-odometer>
+              </p>
+            </ion-col>
+            
+           
+
+            <ion-col size="" class="gridcol pending">
+              <img
+                src="assets/images/circle.svg"
+                class="card-img-absolutes"
+                alt=""
+              />
+              Pending
+              <p  style="font-weight: bold; font-size: 22px; text-align: center;">
+                <ng2-odometer [number]="pending"></ng2-odometer>
+              </p>
+            </ion-col>
+
+            <ion-col size="" class="gridcol completed">
+              <img
+                src="assets/images/circle.svg"
+                class="card-img-absolutes"
+                alt=""
+              />
+              Completed
+              <p  style="font-weight: bold; font-size: 22px; text-align: center;">
+                <ng2-odometer [number]="hwdata.completed"></ng2-odometer>
+              </p>
+            </ion-col>
+            
+          
+    </ion-row>
+     <!-- <ion-row>
+      
+     
+     </ion-row> -->
+          </ion-grid>
+        </ion-col>
+  </ion-card>
+
+  <ion-card style="background-color: rgb(250, 231, 223); " *ngIf="highwaystable.length>=1">
+    <ion-item>
+      <div class="alignme-center" style="width: 100%;">
+        Road Agency / Typewise Details
+     </div>
+    </ion-item>
+
+   <ion-grid>
+    <ion-row >
+      <ion-col  size="6" *ngFor="let wing of highwaystable;" > 
+        <ion-card style="width: auto; margin-left: 0%; margin-top: 0%; margin-bottom: 0%; margin-right: 0%;">
+          <ion-card-content>
+            <ion-card-title style="text-align: center; font-size: 16px; padding-top: 0%; padding-bottom: 7px;">
+              {{wing.name | uppercase}}
+            </ion-card-title>
+            <ion-row> 
+            <ion-col  style="background-color: #fdd1da; text-align: center;">
+              <ion-label style="color: black;">Request</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wing.received" style="color: black;">{{wing.received}}</ion-label>
+                <ion-label *ngIf="!wing.received" style="color: black;">0</ion-label>
+             </p>
+            </ion-col>
+             <ion-col  style="background-color: #ffd8b1; text-align: center;">
+               <ion-label style="color: black;">Pending</ion-label>
+               <p style="font-weight: bold; font-size: 18px;  text-align: center; color: black;">
+                <ion-label *ngIf="wing.pending"  style="color: black;">{{wing.pending}}</ion-label>
+                <ion-label *ngIf="!wing.pending"  style="color: black;">0</ion-label>
+              </p>              
+             </ion-col>
+            <ion-col  style="background-color: #edfab9; text-align: center; ">
+              <ion-label style="color: black;">Completed</ion-label>
+              <p style="font-weight: bold; font-size: 18px;   text-align: center; color: black;">
+                <ion-label *ngIf="wing.completed" style="color: black;">{{wing.completed}}</ion-label>
+                <ion-label *ngIf="!wing.completed" style="color: black;">0</ion-label>
+             </p>
+            </ion-col>
+           </ion-row>
+          </ion-card-content>
+          <ion-icon style="padding-left: 46%; padding-top: 0%;  font-size: 25px;" name="caret-down-sharp" color="danger" (click)="drilDownHighways(wing)"   ></ion-icon>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+   </ion-grid>
+  </ion-card>
+
+    </ion-content>
+</ng-container>
+
+<ng-container *ngIf="db_flag=='HEALTH'" >
+  <ion-content >
+    <ion-refresher slot="fixed" (ionRefresh)="doRefreshDB($event)">
+      <ion-refresher-content pullingIcon="arrow-down-outline"  pullingText="Pull to refresh"  refreshingSpinner="circles"   refreshingText="Refreshing..." >   </ion-refresher-content>
+    </ion-refresher>
+    <ion-card>
+      <ion-row>
+        <ion-col *ngIf="hospitalRegiscount!=null" class="gridcolhealth involved">
+          <p style="color: white; text-align: center; font-size: 18px;
+          font-weight: bold; margin-top: 0%;">HOSPITALS REGISTERED</p>
+         <!-- Gender -->
+          <p  style="font-weight: bold; font-size: 22px; color: white; text-align: center;margin-top: 2%;">
+            <ng2-odometer [number]="hospitalRegiscount[0].count"></ng2-odometer>
+          </p>
+          <ion-row >
+            <ion-col >
+             
+               <!-- <ion-card style="margin-top: 0%; width: auto; margin-left: 0%; margin-right: 0%; margin-bottom: -10%; padding-bottom: 0%; background-color: transparent;"> -->
+                 <ion-row style="width: auto; padding-top: 40px;"> 
+                  <ion-col  style="background-color: transparent;margin-top: 0%; text-align: center; margin-bottom: 0%;">
+                    <ion-label style="color: white; margin-top: 10%;">Government</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white; margin-top: 7%;">
+                     
+                      <ion-label *ngIf="hospitalregis[0]!" style="color: white;">{{hospitalregis[0].count}}</ion-label>
+                      <ion-label *ngIf="!hospitalregis[0]" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 0%; text-align: center;">
+                     <ion-label style="color: white;">Private</ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white; margin-top: 7%;">
+                      <ion-label *ngIf="hospitalregis[1].count" style="color: white;">{{hospitalregis[1].count}}</ion-label>
+                      <ion-label *ngIf="!hospitalregis[1].count" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <!-- <ion-col  style="background-color: transparent; margin-top: 0%; text-align: center;">
+                    <ion-label style="color: white;">PMJAY</ion-label>
+                    <p style="font-weight: bold; font-size: 22px; text-align: center; color: white; margin-top: 7%;">
+                      <ion-label style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col> -->
+                 </ion-row>
+               <!-- </ion-card>  -->
+            
+            </ion-col>
+          
+          </ion-row>
+          
+
+        </ion-col>
+
+        <ion-col  *ngIf="getPMJAY!=null" size="" class="gridcolhealth pmjay">
+          <p style="color: white; text-align: center; font-size: 18px;
+          font-weight: bold; margin-top: 0%;">PMJAY</p>
+         <!-- Gender -->
+          <p  style="font-weight: bold; font-size: 22px; color: white; text-align: center;margin-top: 2%;">
+            <ng2-odometer [number]="hospitalRegiscount[0].count"></ng2-odometer>
+          </p>
+          <ion-row >
+            <ion-col >
+             
+                 <ion-row style="width: auto; padding-top: 40px;"> 
+                  <ion-col  style="background-color: transparent;margin-top: 0%; text-align: center; margin-bottom: 0%;">
+                    <ion-label style="color: white; margin-top: 10%;">Government</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white; margin-top: 7%;">
+                      <!-- <ion-label style="color: white;">{{getPMJAY[0].count}}</ion-label> -->
+                      <ion-label *ngIf="getPMJAY[0].count" style="color: white;">{{getPMJAY[0].count}}</ion-label>
+                      <ion-label *ngIf="!getPMJAY[0].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 0%; text-align: center;">
+                     <ion-label style="color: white;">Private</ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white; margin-top: 7%;">
+                      <!-- <ion-label style="color: white;">{{getPMJAY[1].count}}</ion-label> -->
+                      <ion-label *ngIf="getPMJAY[1].count" style="color: white;">{{getPMJAY[1].count}}</ion-label>
+                      <ion-label *ngIf="!getPMJAY[1].count" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <!-- <ion-col  style="background-color: transparent; margin-top: 0%; text-align: center;">
+                    <ion-label style="color: white;">PMJAY</ion-label>
+                    <p style="font-weight: bold; font-size: 22px; text-align: center; color: white; margin-top: 7%;">
+                      <ion-label style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col> -->
+                 </ion-row>
+               <!-- </ion-card>  -->
+            
+            </ion-col>
+          
+          </ion-row>
+          
+
+        </ion-col>
+
+
+        <ion-col size="" class="gridcolhealth pending">
+          <p style="color: white; text-align: center; font-size: 18px;
+          font-weight: bold; margin-top: 0%;">NO OF PATIENTS</p> 
+         <p  style="font-weight: bold; font-size: 22px; color: white; text-align: center;margin-top: 2%;">
+          <ng2-odometer [number]="totalPatient"></ng2-odometer>
+        </p>
+          <ion-row >
+            <ion-col >
+             
+              <!-- <ion-card style="margin-top: 0%; width: auto; margin-left: 0%; margin-right: 0%;"> -->
+                 <ion-row style="width: auto;"> 
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: white;">Out Patients</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white;">
+                      <!-- <ion-label style="color: white;">{{patienttype[0].count}}</ion-label> -->
+                      <ion-label *ngIf="patienttype[0].count" style="color: white;">{{patienttype[0].count}}</ion-label>
+                      <ion-label *ngIf="!patienttype[0].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <!-- <ion-col  style="background-color: transparent; text-align: center;">
+                     <ion-label style="color: transparent;">Female</ion-label>
+                     <p style="font-weight: bold; font-size: 18px;  text-align: center; color: transparent;">
+                      <ion-label style="color: transparent;">0</ion-label>
+                    </p>              
+                   </ion-col> -->
+                   
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: white;">In Patients</ion-label>
+                    <p style="font-weight: bold; font-size: 22px; text-align: center; color: white;">
+                      <ion-label *ngIf="patienttype[1].count" style="color: white;">{{patienttype[1].count}}</ion-label>
+                      <ion-label *ngIf="!patienttype[1].count" style="color: white;">0</ion-label>
+                      
+                   </p>
+                  </ion-col>
+                 </ion-row>
+              <!-- </ion-card> -->
+            
+            </ion-col>
+          
+          </ion-row>
+        </ion-col>
+
+        <ion-col size="" class=" gridcolhealth completed">
+          <p style="color: white; text-align: center; font-size: 18px;
+          font-weight: bold; margin-top: 0%;">GENDER</p>
+         <!-- Gender -->
+          <p  style="font-weight: bold; font-size: 22px; color: white; text-align: center;margin-top: 2%;">
+            <ng2-odometer [number]="totalGender"></ng2-odometer>
+          </p>
+          <ion-row >
+            <ion-col >
+             
+                 <ion-row style="width: auto;"> 
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: white;">Male</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white;">
+                      <!-- <ion-label style="color: white;">{{healthGender[0].count}}</ion-label> -->
+                      <ion-label *ngIf="healthGender[0].count" style="color: white;">{{healthGender[0].count}}</ion-label>
+                      <ion-label *ngIf="!healthGender[0].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                     <ion-label style="color: white;">Female</ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  text-align: center; color: white;">
+                      <!-- <ion-label style="color: white;">{{healthGender[1].count}}</ion-label> -->
+                      <ion-label *ngIf="healthGender[1].count" style="color: white;">{{healthGender[1].count}}</ion-label>
+                      <ion-label *ngIf="!healthGender[1].count" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: white;">TG</ion-label>
+                    <p style="font-weight: bold; font-size: 22px; text-align: center; color: white;">
+                      <!-- <ion-label style="color: white;">{{healthGender[2].count}}</ion-label> -->
+                      <ion-label *ngIf="healthGender[2].count" style="color: white;">{{healthGender[2].count}}</ion-label>
+                      <ion-label *ngIf="!healthGender[2].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+                 </ion-row>
+            </ion-col> 
+          </ion-row>
+        </ion-col>
+
+      
+        </ion-row>
+    </ion-card>
+
+      <ion-row>
+        <ion-col size="" class="gridcolhealth" style="background-color: whitesmoke; ">
+          <p style="color: black; text-align: center; font-size: 16px;
+          font-weight: bold; margin-top: 0%;">SEVERITY</p>
+        
+          <ion-row >
+            <ion-col >
+             
+                 <ion-row style="width: auto;"> 
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Fatal<br><br></ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background-color: #f95878; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getSeverity[0].count}}</ion-label> -->
+                      <ion-label *ngIf="getSeverity[0].count" style="color: white;">{{getSeverity[0].count}}</ion-label>
+                      <ion-label *ngIf="!getSeverity[0].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                     <ion-label style="color: black;">Grevious<br><br> </ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  background-color: #f6912c; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getSeverity[1].count}}</ion-label> -->
+                      <ion-label *ngIf="getSeverity[1].count" style="color: white;">{{getSeverity[1].count}}</ion-label>
+                      <ion-label *ngIf="!getSeverity[1].count" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Sim.Inj<br>(Hospitalized)</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background-color: #fcbd2b; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getSeverity[2].count}}</ion-label> -->
+                      <ion-label *ngIf="getSeverity[2].count" style="color: white;">{{getSeverity[2].count}}</ion-label>
+                      <ion-label *ngIf="!getSeverity[2].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Sim.Inj(Non Hospitalized)</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background-color: #43d8d8; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getSeverity[3].count}}</ion-label> -->
+                      <ion-label *ngIf="getSeverity[3].count" style="color: white;">{{getSeverity[3].count}}</ion-label>
+                      <ion-label *ngIf="!getSeverity[3].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+                 </ion-row>
+             <p style="text-align: left; padding-top: 20px;">
+              <ion-label style="font-weight: 500; font-size: 18px;  color: black;">Total:</ion-label>&nbsp;&nbsp;
+              <ion-label style="font-size: 22px; color: black;">{{totalSeverity}}</ion-label>
+           </p>
+            </ion-col>
+          
+          </ion-row>
+          
+
+        </ion-col>
+
+        <ion-col size="" class="gridcolhealth" style="background-color: whitesmoke;">
+          <p style="color: black; text-align: center; font-size: 16px;
+          font-weight: bold; margin-top: 0%;">TRAUMA FLAG/TRIAGE</p>
+        
+          <ion-row >
+            <ion-col>
+                 <ion-row style="width: auto;"> 
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: red;">Red</ion-label>
+                    
+                    <p style="font-weight: bold; font-size: 22px;  background-color: red; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getTrauma[0].count}}</ion-label> -->
+                      <ion-label *ngIf="getTrauma[0].count" style="color: white;">{{getTrauma[0].count}}</ion-label>
+                      <ion-label *ngIf="!getTrauma[0].count" style="color: white;">0</ion-label>
+                   </p>
+                  
+                  </ion-col>
+
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: rgb(222, 215, 29);">Yellow</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background-color: rgb(222, 215, 29); padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getTrauma[1].count}}</ion-label> -->
+                      <ion-label *ngIf="getTrauma[1].count" style="color: white;">{{getTrauma[1].count}}</ion-label>
+                      <ion-label *ngIf="!getTrauma[1].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                     <ion-label style="color: green;">Green</ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  background: green; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getTrauma[2].count}}</ion-label> -->
+                      <ion-label *ngIf="getTrauma[2].count" style="color: white;">{{getTrauma[2].count}}</ion-label>
+                      <ion-label *ngIf="!getTrauma[2].count" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Black</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background: black; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getTrauma[3].count}}</ion-label> -->
+                      <ion-label *ngIf="getTrauma[3].count" style="color: white;">{{getTrauma[3].count}}</ion-label>
+                      <ion-label *ngIf="!getTrauma[3].count" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+                 </ion-row>
+                 
+               
+              
+            </ion-col>
+           
+          </ion-row>
+          <ion-row style="padding-top: 40px;">
+          <p style="text-align: left; padding-top: -40px;">
+            <ion-label style="font-weight: 500; font-size: 18px;  color: black;">Total:</ion-label>&nbsp;&nbsp;
+            <ion-label style="font-size: 22px; color: black;">{{totalTrauma}}</ion-label>
+         </p>
+        </ion-row>
+        </ion-col>
+
+        <ion-col size="" class="gridcolhealth" style="background-color: whitesmoke;">
+          <p style="color: black; text-align: center; font-size: 16px;
+          font-weight: bold; margin-top: 0%;">AGE</p>
+        
+          <ion-row >
+            <ion-col >
+                 <ion-row style="width: auto;"> 
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Less than 18</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background: #e94545; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getAge[0].children}}</ion-label> -->
+                      <ion-label *ngIf="getAge[0].children" style="color: white;">{{getAge[0].children}}</ion-label>
+                      <ion-label *ngIf="!getAge[0].children" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+
+                   <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                     <ion-label style="color: black;">From 18 to 60</ion-label>
+                     <p style="font-weight: bold; font-size: 22px;  background: #1767e2; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getAge[0].working}}</ion-label> -->
+                      <ion-label *ngIf="getAge[0].working" style="color: white;">{{getAge[0].working}}</ion-label>
+                      <ion-label *ngIf="!getAge[0].working" style="color: white;">0</ion-label>
+                    </p>              
+                   </ion-col>
+                   
+                  <ion-col  style="background-color: transparent; margin-top: 8%; text-align: center;">
+                    <ion-label style="color: black;">Above 60</ion-label>
+                    <p style="font-weight: bold; font-size: 22px;  background: #20ad5e; padding: 5px; border-radius: 15px;">
+                      <!-- <ion-label style="color: white;">{{getAge[0].oldage}}</ion-label> -->
+                      <ion-label *ngIf="getAge[0].oldage" style="color: white;">{{getAge[0].oldage}}</ion-label>
+                      <ion-label *ngIf="!getAge[0].oldage" style="color: white;">0</ion-label>
+                   </p>
+                  </ion-col>
+                  
+                 </ion-row>
+             <p style="text-align: left; padding-top: 40px;">
+              <ion-label style="font-weight: 500; font-size: 18px;  color: black;">Total:</ion-label>&nbsp;&nbsp;
+              <ion-label style="font-size: 22px; color: black;">{{totalAge}}</ion-label>
+           </p>
+            </ion-col>
+           
+          </ion-row>
+        </ion-col>
+        </ion-row>
+    
+        <ion-row>
+          <ion-col size="" class="gridcolhealth" style="background-color: white;">
+            <p style="color: black; text-align: center; font-size: 18px;
+            font-weight: bold; margin-top: 10px;">REPORTS</p>
+            <ion-row >
+              <ion-col >
+                   <ion-row style="width: auto; padding-top: 20px;"> 
+                    <ion-col  style="background-color: #a2d2ff; margin-top: 10px; text-align: center; border-radius: 12px; margin: 5px; ">
+                      <ion-label style="color: black; position: relative; top: 10px;">Police Intimation</ion-label>
+                      <p style="font-weight: bold; font-size: 24px;  text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getReports[0].pis}}</ion-label> -->
+                        <ion-label *ngIf="getReports[0].pis" style="color: black;">{{getReports[0].pis}}</ion-label>
+                      <ion-label *ngIf="!getReports[0].pis" style="color: black;">0</ion-label>
+                     </p>
+                    </ion-col>
+                     <ion-col  style="background-color: #b8b8ff; margin-top:  10px; text-align: center; border-radius: 12px; margin: 5px; ">
+                       <ion-label style="color: black;  position: relative; top: 10px;">Wound Certificate</ion-label>
+                       <p style="font-weight: bold; font-size: 24px;  text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getReports[0].accregister}}</ion-label> -->
+                        <ion-label *ngIf="getReports[0].accregister" style="color: black;">{{getReports[0].accregister}}</ion-label>
+                      <ion-label *ngIf="!getReports[0].accregister" style="color: black;">0</ion-label>
+                      </p>               
+                     </ion-col>
+                    <ion-col  style="background-color: #ffcdb2; margin-top:  10px; text-align: center; border-radius: 12px; margin: 5px;">
+                      <ion-label style="color: black;  position: relative; top: 10px;">Dischage Certificate</ion-label>
+                      <p style="font-weight: bold; font-size: 24px; text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getReports[0].discharge}}</ion-label> -->
+                        <ion-label *ngIf="getReports[0].discharge" style="color: black;">{{getReports[0].discharge}}</ion-label>
+                        <ion-label *ngIf="!getReports[0].discharge" style="color: black;">0</ion-label>
+                     </p>
+                    </ion-col>
+                    <ion-col  style="background-color: #e0aaff; margin-top:  10px; text-align: center; border-radius: 12px; margin: 5px;">
+                      <ion-label style="color: black;  position: relative; top: 10px;">DD<br></ion-label>
+                      <p style="font-weight: bold; font-size: 24px; text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getReports[0].dd}}</ion-label> -->
+                        <ion-label *ngIf="getReports[0].dd" style="color: black;">{{getReports[0].dd}}</ion-label>
+                        <ion-label *ngIf="!getReports[0].dd" style="color: black;">0</ion-label>
+                     </p>
+                    </ion-col>
+                    <ion-col  style="background-color: #fdc5f5; margin-top:  10px; text-align: center;  border-radius: 12px; margin: 5px;">
+                      <ion-label style="color: black;  position: relative; top: 10px;">PostMortem Certificate</ion-label>
+                      <p style="font-weight: bold; font-size: 24px; text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getReports[0].pm}}</ion-label> -->
+                        <ion-label *ngIf="getReports[0].pm" style="color: black;">{{getReports[0].pm}}</ion-label>
+                        <ion-label *ngIf="!getReports[0].pm" style="color: black;">0</ion-label>
+                     </p>
+                    </ion-col>
+                   </ion-row>
+              </ion-col>
+
+            </ion-row>
+          </ion-col>
+
+          <ion-col size="3" class=" gridcolhealth" style="background-color: white;">
+            <p style="color: black; text-align: center; font-size: 18px;
+            font-weight: bold; margin-top: 10px;">POLICE INTIMATION</p>
+           <!-- Gender -->
+            <p  style="font-weight: bold; font-size: 22px; color: black; text-align: center;margin-top: 2%;">
+              <ng2-odometer [number]="totalPIS"></ng2-odometer>
+            </p>
+            <ion-row >
+              <ion-col >
+               
+                   <ion-row style="width: auto; padding-top: 5px;"> 
+                    <ion-col  style="background-color: #c3e8bd; margin-top: 8%; text-align: center; border-radius: 12px; margin: 5px; ">
+                      <ion-label style="color: black;  position: relative; top: 10px;">Requested</ion-label>
+                      <p style="font-weight: bold; font-size: 24px;  text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getPIS[0].requested}}</ion-label> -->
+                        <ion-label *ngIf="getPIS[0].requested" style="color: black;">{{getPIS[0].requested}}</ion-label>
+                        <ion-label *ngIf="!getPIS[0].requested" style="color: black;">0</ion-label>
+                     </p>
+                    </ion-col>
+  
+                     <ion-col  style="background-color: #f9c784; margin-top: 8%; text-align: center; border-radius: 12px; margin: 5px;">
+                       <ion-label style="color: black;  position: relative; top: 10px;">Responded</ion-label>
+                       <p style="font-weight: bold; font-size: 24px;  text-align: center; color: black;">
+                        <!-- <ion-label style="color: black;">{{getPIS[0].responded}}</ion-label> -->
+                        <ion-label *ngIf="getPIS[0].responded" style="color: black;">{{getPIS[0].responded}}</ion-label>
+                        <ion-label *ngIf="!getPIS[0].responded" style="color: black;">0</ion-label>
+                      </p>              
+                     </ion-col>
+                   
+                   </ion-row>
+              </ion-col> 
+            </ion-row>
+          </ion-col>
+          </ion-row>
+    
+    </ion-content>
+</ng-container>
